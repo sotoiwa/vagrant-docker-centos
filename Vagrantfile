@@ -7,6 +7,9 @@ $configureBox = <<-SHELL
   # パッケージ更新
   yum update -y
 
+  # gitのインストール
+  yum install -y git
+
   # Dockerの前提パッケージ
   yum install -y yum-utils device-mapper-persistent-data lvm2
   # Dockerのレポジトリ追加
@@ -14,7 +17,7 @@ $configureBox = <<-SHELL
   # Dockerのインストール
   # VERSION=$(yum list docker-ce --showduplicates | sort -r | grep 17.03 | head -1 | awk '{print $2}')
   # yum install -y --setopt=obsoletes=0 docker-ce-$VERSION docker-ce-selinux-$VERSION
-  VERSION=$(yum list docker-ce --showduplicates | sort -r | grep 18.06.1 | head -1 | awk '{print $2}')
+  VERSION=$(yum list docker-ce --showduplicates | sort -r | grep 18.03.1 | head -1 | awk '{print $2}')
   yum install -y docker-ce-$VERSION
 
   mkdir -p /etc/systemd/system/docker.service.d
@@ -41,7 +44,9 @@ Vagrant.configure(2) do |config|
   #   vb.memory = "1024"
   # end
 
+  config.vm.synced_folder ".", "/vagrant", type:"virtualbox"
+
   # プロビジョニング実行
-  s.vm.provision "shell", inline: $configureBox
+  config.vm.provision "shell", inline: $configureBox
 
 end
