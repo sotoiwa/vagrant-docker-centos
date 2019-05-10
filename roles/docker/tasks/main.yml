@@ -1,0 +1,72 @@
+- name: Update all installed packages
+  yum:
+    name: '*'
+    state: latest
+  register: result
+  retries: 3
+  until: result is succeeded
+  delay: 3
+- name: Install git
+  yum:
+    name:
+    - git
+    state: latest
+  register: result
+  retries: 3
+  until: result is succeeded
+  delay: 3
+- name: Install yum-plugin-versionlock
+  yum:
+    name:
+    - yum-plugin-versionlock
+    state: latest
+  register: result
+  retries: 3
+  until: result is succeeded
+  delay: 3
+- name: Install docker dependencies
+  yum:
+    name:
+    - yum-utils
+    - device-mapper-persistent-data
+    - lvm2
+    state: latest
+  register: result
+  retries: 3
+  until: result is succeeded
+  delay: 3
+- name: Add docker repository
+  get_url:
+    url: https://download.docker.com/linux/centos/docker-ce.repo
+    dest: /etc/yum.repos.d/docer-ce.repo
+- name: Get docker version string
+  shell: "yum list docker-ce --showduplicates | sort -r | grep {{ docker_version }} | head -1 | awk '{print $2}'"
+  args:
+    warn: false
+  register: docker_version_string
+  changed_when: false
+- name: Install docker
+  yum:
+    name:
+    - docker-ce-{{ docker_version_string.stdout }}
+    state: present
+  register: result
+  retries: 3
+  until: result is succeeded
+  delay: 3
+  notify: Restart docker
+- name: Lock docker version
+  shell: yum versionlock docker*
+  args:
+    warn: false
+  changed_when: false
+- name: Enable docker
+  service:
+    name: docker
+    enabled: yes
+- name: Add vagrant user to docker group
+  user:
+    name: vagrant
+    groups : docker
+    append: yes
+  notify: Restart docker

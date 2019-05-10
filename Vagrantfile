@@ -1,35 +1,6 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
-# プロビジョニングスクリプト
-$configureBox = <<-SHELL
-
-  # パッケージ更新
-  yum update -y
-
-  # gitのインストール
-  yum install -y git
-
-  # Dockerの前提パッケージ
-  yum install -y yum-utils device-mapper-persistent-data lvm2
-  # Dockerのレポジトリ追加
-  yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
-  # Dockerのインストール
-  # VERSION=$(yum list docker-ce --showduplicates | sort -r | grep 17.03 | head -1 | awk '{print $2}')
-  # yum install -y --setopt=obsoletes=0 docker-ce-$VERSION docker-ce-selinux-$VERSION
-  VERSION=$(yum list docker-ce --showduplicates | sort -r | grep 18.03.1 | head -1 | awk '{print $2}')
-  yum install -y docker-ce-$VERSION
-
-  mkdir -p /etc/systemd/system/docker.service.d
-  systemctl enable docker
-  systemctl daemon-reload
-  systemctl restart docker
-
-  # vagrantユーザーをdockerグループに追加
-  usermod -aG docker vagrant
-
-SHELL
-
 Vagrant.configure(2) do |config|
 
   config.vm.box = "centos/7"
@@ -44,9 +15,14 @@ Vagrant.configure(2) do |config|
   #   vb.memory = "1024"
   # end
 
+  # if Vagrant.has_plugin?("vagrant-vbguest")
+  #   config.vbguest.auto_update = false
+  # end
   config.vm.synced_folder ".", "/vagrant", type:"virtualbox"
 
   # プロビジョニング実行
-  config.vm.provision "shell", inline: $configureBox
+  config.vm.provision "ansible_local" do |ansible|
+    ansible.playbook = "/vagrant/site.yml"
+  end
 
 end
