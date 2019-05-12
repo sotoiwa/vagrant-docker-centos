@@ -1,4 +1,4 @@
-# vagrant-k8s-centos
+# vagrant-docker-centos
 
 Dockerイメージのビルド環境を作る手順です。
 
