@@ -14,7 +14,7 @@ Dockerイメージのビルド環境を作る手順です。
 
 VagrantはホストOSのカレントディレクトリーがVMの`/vagrant`にマウントするので、このディレクトリーを使って`Dockerfile`などファイルの受け渡しができます。しかし、デフォルトではVM起動時にrsyncするだけなので、リアルタイムに同期するためには、VirtualBoxのGuest Additionsが必要です。これを自動でインストールしてくれるVagrantのプラグインを導入します。
 
-```
+```shell
 vagrant plugin install vagrant-vbguest
 ```
 
@@ -31,7 +31,7 @@ vagrant up
 
 イメージの中に入ります。あとは自由にビルドします。
 
-```
+```shell
 # イメージに入る
 vagrant ssh
 # Dockerのバージョン確認
